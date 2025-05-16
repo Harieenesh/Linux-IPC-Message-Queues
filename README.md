@@ -21,14 +21,56 @@ Execute the C Program for the desired output.
 # PROGRAM:
 
 ## C program that receives a message from message queue and display them
+WRITER PROCESS
+```
+#include <stdio.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <string.h>
+#include <stdlib.h>
+struct mesg_buffer {
+    long mesg_type;
+    char mesg_text[100];
+} message;
 
-
-
+int main() {
+    key_t key;
+    int msgid;
+    key = ftok("progfile", 65);
+    msgid = msgget(key, 0666 | IPC_CREAT);
+    message.mesg_type = 1;
+    printf("Write Data: ");
+    scanf("%s", message.mesg_text);
+    msgsnd(msgid, &message, sizeof(message), 0);
+    printf("Data send is : %s \n", message.mesg_text);
+    return 0;
+}
+```
+READER PROCESS
+```
+#include <stdio.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+struct mesg_buffer {
+    long mesg_type;
+    char mesg_text[100];
+} message;
+int main() {
+    key_t key;
+    int msgid;
+    key = ftok("progfile", 65);
+    msgid = msgget(key, 0666 | IPC_CREAT);
+    msgrcv(msgid, &message, sizeof(message), 1, 0);
+    printf("Data Received is : %s \n", message.mesg_text);
+    msgctl(msgid, IPC_RMID, NULL);
+    return 0;
+}
+```
 
 
 ## OUTPUT
 
-
+![443230197-d7c11a17-32ac-40a1-9344-4f5fcebbccc1](https://github.com/user-attachments/assets/9ef454dd-d0db-4c68-a7a5-a146095ebb18)
 
 
 # RESULT:
